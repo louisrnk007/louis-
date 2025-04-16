@@ -1,25 +1,26 @@
 import streamlit as st
 import openai
 
-st.set_page_config(page_title="CoachBot IA", page_icon="🏋️‍♂️")
+# Configuration de la clé API
+openai.api_key = st.secrets["openai"]["api_key"]
+
 st.title("🤖 CoachBot - Assistant Sportif avec IA")
 st.write("Pose-moi une question sur l'entraînement ou la nutrition 👇")
 
 message = st.text_input("Que veux-tu savoir ?")
 
-def repondre_ia(question):
-    openai.api_key = st.secrets["openai"]["api_key"]  # 🔐 Ta clé est sécurisée
-
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # tu peux aussi essayer "gpt-4"
+def repondre_ia(prompt):
+    client = openai.OpenAI()  # Création du client
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",  # ou "gpt-4" si dispo
         messages=[
-            {"role": "system", "content": "Tu es un coach sportif motivant et bienveillant. Tu aides les gens à s'entraîner et bien manger."},
-            {"role": "user", "content": question}
+            {"role": "system", "content": "Tu es un coach sportif expert en entraînement et nutrition."},
+            {"role": "user", "content": prompt}
         ]
     )
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
 
 if message:
-    with st.spinner("CoachBot réfléchit à ta question... 🧠"):
+    with st.spinner("Réflexion..."):
         reponse = repondre_ia(message)
         st.success(reponse)
